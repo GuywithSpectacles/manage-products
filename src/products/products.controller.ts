@@ -45,7 +45,7 @@ export class ProductsController {
     return `Product is deleted ${id}`;
   }
 
-  @Put(':ID')
+  @Put(':id')
   update(@Body() createProductDTO: CreateProductDTO, @Param('id') id): string {
     return `
     Update ${id} -
