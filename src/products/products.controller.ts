@@ -20,7 +20,7 @@ export class ProductsController {
     return this.productService.findAll();
   }
 
-  @Get()
+  @Get(':id')
   findOne(@Param('id') id): Product {
     return this.productService.findOne(id);
   }
@@ -40,12 +40,12 @@ export class ProductsController {
     `;
   }
 
-  @Delete()
+  @Delete(':id')
   delete(@Param('id') id): string {
     return `Product is deleted ${id}`;
   }
 
-  @Put()
+  @Put(':ID')
   update(@Body() createProductDTO: CreateProductDTO, @Param('id') id): string {
     return `
     Update ${id} -
