@@ -1,40 +1,82 @@
 import { Injectable } from '@nestjs/common';
-import { Product } from './interfaces/product.interface';
+import { CreateProductDTO } from './dto/create-product.dto';
+import Config from '../config/keys';
+import * as nano from 'nano';
 
 @Injectable()
 export class ProductsService {
-  private readonly products: Product[] = [
-    {
-      id: '1',
-      genericName: 'West Blue',
-      brand: 'asdsadsa545sda',
-      code: 565654,
-      group: 'sadsadsadwqewqdsacsa',
-      cost: 441545415,
-      price: 6516516161,
-      unitOfMearure: 'sadsasad',
-      packingType: 'sdsad',
-      barCode: 'sadsad54541sadsad',
-    },
-    {
-      id: '2',
-      genericName: 'South Blue',
-      brand: 'asdsadsa545sda',
-      code: 565654,
-      group: 'sadsadsadwqewqdsacsa',
-      cost: 441545415,
-      price: 6516516161,
-      unitOfMearure: 'sadsasad',
-      packingType: 'sdsad',
-      barCode: 'sadsad54541sadsad',
-    },
-  ];
+  private db;
 
-  findAll(): Product[] {
-    return this.products;
+  constructor() {
+    const couch = nano(Config.url); //Couchdb url
+    this.db = couch.use('product'); // Database name
   }
 
-  findOne(id: string): Product {
-    return this.products.find((product) => product.id === id);
+  async createProduct(createProduct: CreateProductDTO) {
+    try {
+      const product = await this.db.insert(createProduct);
+      return product;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  async getProducts() {
+    try {
+      const products = await this.db.list({ include_docs: true });
+      return products;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  async getProduct(id: string) {
+    try {
+      const product = await this.db.get(id);
+      return product;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  async deleteProduct(id: string) {
+    try {
+      await this.db.delete(id);
+      return `The product has been deleted`;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  async updateProduct(id: string, updateProduct) {
+    try {
+      let product = await this.db.get(id);
+      if (product) {
+        product = await this.db.insert({
+          _id: product._id,
+          _rev: product._rev,
+          genericName: updateProduct.genericName
+            ? updateProduct.genericName
+            : product.genericName,
+          brand: updateProduct.brand ? updateProduct.brand : product.brand,
+          code: updateProduct.code ? updateProduct.code : product.code,
+          group: updateProduct.group ? updateProduct.group : product.group,
+          cost: updateProduct.cost ? updateProduct.cost : product.cost,
+          price: updateProduct.price ? updateProduct.price : product.price,
+          unitOfMearure: updateProduct.unitOfMearure
+            ? updateProduct.unitOfMearure
+            : product.unitOfMearure,
+          packingType: updateProduct.packingType
+            ? updateProduct.packingType
+            : product.packingType,
+          barCode: updateProduct.barCode
+            ? updateProduct.barCode
+            : product.barCode,
+        });
+        return product;
+      }
+    } catch (error) {
+      throw new Error(error);
+    }
   }
 }

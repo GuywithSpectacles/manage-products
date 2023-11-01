@@ -9,55 +9,36 @@ import {
 } from '@nestjs/common';
 import { CreateProductDTO } from './dto/create-product.dto';
 import { ProductsService } from './products.service';
-import { Product } from './interfaces/product.interface';
 
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productService: ProductsService) {}
 
+  @Post()
+  async createProduct(@Body() createProductData: CreateProductDTO) {
+    return await this.productService.createProduct(createProductData);
+  }
+
   @Get()
-  findAll(): Product[] {
-    return this.productService.findAll();
+  getProducts() {
+    return this.productService.getProducts();
   }
 
   @Get(':id')
-  findOne(@Param('id') id): Product {
-    return this.productService.findOne(id);
-  }
-
-  @Post()
-  create(@Body() createProductDTO: CreateProductDTO): string {
-    return `
-    Name: ${createProductDTO.genericName}
-    Brand: ${createProductDTO.brand}
-    Code: ${createProductDTO.code}
-    Group: ${createProductDTO.group}
-    Cost: ${createProductDTO.cost}
-    Price: ${createProductDTO.price}
-    UnitOfMearure: ${createProductDTO.unitOfMearure}
-    PackingType: ${createProductDTO.packingType}
-    barCode: ${createProductDTO.barCode}
-    `;
-  }
-
-  @Delete(':id')
-  delete(@Param('id') id): string {
-    return `Product is deleted ${id}`;
+  async getProduct(@Param('id') id: string) {
+    return await this.productService.getProduct(id);
   }
 
   @Put(':id')
-  update(@Body() createProductDTO: CreateProductDTO, @Param('id') id): string {
-    return `
-    Update ${id} -
-    Name: ${createProductDTO.genericName}
-    Brand: ${createProductDTO.brand}
-    Code: ${createProductDTO.code}
-    Group: ${createProductDTO.group}
-    Cost: ${createProductDTO.cost}
-    Price: ${createProductDTO.price}
-    UnitOfMearure: ${createProductDTO.unitOfMearure}
-    PackingType: ${createProductDTO.packingType}
-    barCode: ${createProductDTO.barCode}
-    `;
+  async updateProduct(
+    @Body() updateProductData: CreateProductDTO,
+    @Param('id') id: string,
+  ) {
+    return await this.productService.updateProduct(id, updateProductData);
+  }
+
+  @Delete()
+  async deleteProduct(@Param('id') id: string) {
+    return await this.productService.deleteProduct(id);
   }
 }
